@@ -1,0 +1,29 @@
+{% extends 'content_recommendations/base.html' %}
+{% load static %}
+
+{% block css %}
+    <link href="{% static 'vendor/css/index.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <h1 class="mt-5">ContentRecSys</h1>
+                    <p>
+                        Добро пожаловать в наш сервис анализа контента. Мы предоставляем возможность анализировать текстовые, видео- и аудиофайлы для извлечения полезной информации и вывода рекомендаций.
+                    </p>
+                    <p>
+                        Начните использовать возможности нашей системы прямо сейчас!
+                    </p>
+                    <button id="start-analysis-btn" type="button" class="btn btn-lg">
+                        <a id="start-analysis-link" href="{% url 'index' %}">
+                            Начать анализ
+                        </a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
