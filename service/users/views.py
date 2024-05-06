@@ -1,16 +1,34 @@
-from django.contrib.messages.views import SuccessMessageMixin
+import re
+import requests
 
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
+from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
 from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import DetailView
+
+
 
 from common.views import TitleMixin
 from users.forms import UserLoginForm, UserRegistrationForm
 from users.models import CustomUser
 
-# Create your views here.
-class UserRegistrationView(TitleMixin, SuccessMessageMixin,CreateView):
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
+from django.views.generic import View, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from users.models import CustomUser
+from users.forms import UserLoginForm, UserRegistrationForm
+from common.views import TitleMixin
+
+class UserRegistrationView(TitleMixin, SuccessMessageMixin, CreateView):
     model = CustomUser
     template_name = 'users/register.html'
     form_class = UserRegistrationForm
@@ -25,3 +43,65 @@ class UserLoginView(TitleMixin, LoginView):
 
 class UserLogoutView(LogoutView):
     pass
+
+class UserProfileView(DetailView):
+    model = CustomUser
+    template_name = 'users/profile.html'
+    context_object_name = 'user_profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.object
+        if user.youtube_channel:
+            print("Channel URL:", user.youtube_channel)  # Выводим URL канала для проверки
+            youtube_info = get_user_info(user.youtube_channel)
+            print("YouTube Info:", youtube_info)
+            context['youtube_info'] = youtube_info
+        return context
+    
+class SaveYouTubeChannelView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        user = get_object_or_404(CustomUser, pk=pk)
+        youtube_channel = request.POST.get('youtube_channel')
+        user.youtube_channel = youtube_channel
+        user.save()
+
+        return HttpResponseRedirect(reverse_lazy('users:profile', kwargs={'pk': pk}))
+
+def get_user_info(channel_url):
+    username = extract_username(channel_url)
+    api_key = 'AIzaSyBG-ts9VMkNhKuznu5ZQQ4HQ76DX_2ZWOk'
+    search_url = f'https://www.googleapis.com/youtube/v3/search?channelType=any&q=%40{username}&key={api_key}'
+    
+    # Выполняем поиск канала по имени пользователя
+    response = requests.get(search_url)
+    data = response.json()
+    
+    # Проверяем наличие элементов в списке и ответе
+    if 'items' in data and data['items']:
+        # Берем etag из первого ответа
+        etag = data['items'][1]['etag']
+        
+        # Прокидываем запрос через этот etag
+        channel_info_url = f'https://www.googleapis.com/youtube/v3/channels?part=snippet&id={etag}&key={api_key}'
+        channel_response = requests.get(channel_info_url)
+        channel_data = channel_response.json()
+        print(channel_data)
+        # Обработка ответа и извлечение информации о канале
+        channel_info = {}
+        if 'items' in channel_data and channel_data['items']:
+            channel_info['title'] = channel_data['items'][0]['snippet']['title']
+            channel_info['description'] = channel_data['items'][0]['snippet']['description']
+            channel_info['thumbnail'] = channel_data['items'][0]['snippet']['thumbnails']['high']['url']
+        
+        return channel_info
+    
+    return {}
+
+def extract_username(channel_url):
+    pattern = r'https://www\.youtube\.com/@(\w+)'
+    match = re.match(pattern, channel_url)
+    if match:
+        return match.group(1)
+    else:
+        return None

@@ -1,0 +1,48 @@
+{% extends 'content_recommendations/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Тарифы нашего сервиса</h1>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Бесплатный тариф</h5>
+                    <p class="card-text">Пробная версия на 30 дней. Получите ограниченный доступ к контенту и базовый анализ предпочтений.</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Ограниченный доступ к контенту</li>
+                        <li class="list-group-item">Базовый анализ предпочтений</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary mt-3">Попробовать бесплатно</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Стандартный тариф</h5>
+                    <p class="card-text">Доступ ко всем функциям. Получите полный доступ к контенту и расширенный анализ предпочтений.</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Полный доступ к контенту</li>
+                        <li class="list-group-item">Расширенный анализ предпочтений</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary mt-3">Подписаться</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body"> 
+                    <h5 class="card-title">Премиум тариф</h5>
+                    <p class="card-text">Максимальные возможности. Получите привилегированный доступ к контенту, персональный анализ и рекомендации.</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Привилегированный доступ к контенту</li>
+                        <li class="list-group-item">Персональный анализ и рекомендации</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary mt-3">Выбрать премиум</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

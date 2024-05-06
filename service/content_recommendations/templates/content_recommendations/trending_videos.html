@@ -1,0 +1,81 @@
+{% extends 'content_recommendations/base.html' %}
+{% load static %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block content %}
+    <!-- Содержимое страницы с популярными видео -->
+    <div class="container">
+        <h1>Популярные видео</h1>
+
+        <!-- YouTube видео -->
+        <h2>YouTube</h2>
+        <div class="row">
+            {% for video in youtube_page_obj %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ video.thumbnail }}" class="card-img-top" alt="{{ video.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ video.title }}</h5>
+                            <!-- Убрано описание видео -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{ video.link }}" class="btn btn-sm btn-outline-secondary">Посмотреть</a>
+                                </div>
+                                <small class="text-muted">{{ video.published_at }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Пагинация для YouTube видео -->
+        <nav aria-label="YouTube Page Navigation">
+            <ul class="pagination justify-content-center">
+                {% if youtube_page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?youtube_page={{ youtube_page_obj.previous_page_number }}">Предыдущая</a></li>
+                {% endif %}
+                <li class="page-item"><span class="page-link">{{ youtube_page_obj.number }}</span></li>
+                {% if youtube_page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?youtube_page={{ youtube_page_obj.next_page_number }}">Следующая</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- TikTok видео -->
+        <h2>VK</h2>
+        <div class="row">
+            {% for video in tiktok_page_obj %}
+                <div class="col-md-4">
+                    <div class="card mb-4 shadow-sm">
+                        <img src="{{ video.thumbnail }}" class="card-img-top" alt="{{ video.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ video.title }}</h5>
+                            <!-- Убрано описание видео -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="btn-group">
+                                    <a href="{{ video.link }}" class="btn btn-sm btn-outline-secondary">Посмотреть</a>
+                                </div>
+                                <small class="text-muted">{{ video.published_at }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <!-- Пагинация для TikTok видео -->
+        <nav aria-label="TikTok Page Navigation">
+            <ul class="pagination justify-content-center">
+                {% if tiktok_page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?tiktok_page={{ tiktok_page_obj.previous_page_number }}">Предыдущая</a></li>
+                {% endif %}
+                <li class="page-item"><span class="page-link">{{ tiktok_page_obj.number }}</span></li>
+                {% if tiktok_page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?tiktok_page={{ tiktok_page_obj.next_page_number }}">Следующая</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

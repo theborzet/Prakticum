@@ -24,8 +24,8 @@ from content_recommendations.views import IndexView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', IndexView.as_view(), name='index'), 
-    # path('content_recommendations/', include('content_recommendations.urls', namespace='content_recommendations')),
+    path('', IndexView.as_view(), name='index'),
+    path('content_recommendations/', include('content_recommendations.urls', namespace='content_recommendations')),
     path('users/', include('users.urls', namespace='users')),
     # path('accounts/', include('allauth.urls')),
     # path('content_management/', include('content_management.urls', namespace='content_management')),

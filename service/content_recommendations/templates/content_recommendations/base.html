@@ -33,22 +33,23 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">    
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'index' %}">Перейти <i class="fas fa-shopping-bag"></i> </a>
+                    <a class="nav-link" href="{% url 'content_recommendations:rates' %}">Выбор тарифа <i class="fas fa-shopping-bag"></i> </a>
                 </li>
                 {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                        data-bs-toggle="dropdown" aria-expanded="false">
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fas fa-user-circle"></i>
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+
+                        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" href="{% url 'index'  %}">Профиль</a>
+                                <a class="dropdown-item" href="{% url 'users:profile' user.id %}">Профиль</a>
                             </li>
-                            <li><a class="dropdown-item" href="orders/orders.html">Заказы</a></li>
+                            <li><a class="dropdown-item" href="{% url 'index' %}">Заказы</a></li>
                             {% if user.is_superuser or user.is_staff %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'index' %}">
+                                    <a class="dropdown-item" href="{% url 'admin_panel' %}">
                                         Админ-панель
                                     </a>
                                 </li>

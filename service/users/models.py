@@ -9,7 +9,10 @@ from django.utils.timezone import now
 class CustomUser(AbstractUser):
     image = models.ImageField(upload_to='users_images', null=True, blank=True)
     is_verified_email = models.BooleanField(default=False)
+    youtube_channel = models.URLField(max_length=200, blank=True, null=True)
 
+    def get_absolute_url(self):
+        return reverse('users:profile', kwargs={'pk': self.pk})
 
 # class EmailVerification(models.Model):
 #     code = models.UUIDField(unique=True)
