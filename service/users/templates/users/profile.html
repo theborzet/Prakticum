@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block css %}
-    <!-- Ваши дополнительные CSS стили здесь -->
     <style>
         .profile-info {
             margin-bottom: 20px;
@@ -16,7 +15,7 @@
         }
 
         .profile-content {
-            overflow: hidden; /* Чтобы избежать перекрытия */
+            overflow: hidden; 
         }
 
         .profile-channel-input {
@@ -26,6 +25,14 @@
         .enter-link {
             font-style: italic;
             color: gray;
+        }
+
+        .youtube-graph {
+            margin-top: -150px;
+        }
+
+        .youtube-graph canvas {
+            margin-bottom: 20px;
         }
     </style>
 {% endblock %}
@@ -67,15 +74,24 @@
             <div class="col-md-8">
                 <!-- График контента пользователя -->
                 <div id="content-graph">
-                    <h2>График контента пользователя</h2>
+                    <h2>Графики контента пользователя</h2>
                     <canvas id="myChart" width="400" height="200"></canvas>
                 </div>
-                {% if youtube_info %}
-                    <div class="profile-info">
-                        <h2>Информация о YouTube-канале</h2>
-                        <p><strong>Название канала:</strong> {{ youtube_info.title }}</p>
-                        <p><strong>Описание канала:</strong> {{ youtube_info.description }}</p>
-                        <!-- Возможно, вы хотите отобразить другую информацию о канале -->
+                <!-- Графики YouTube-канала -->
+                {% if user.youtube_channel %}
+                    <div class="youtube-graph row">
+                        <div class="col-md-6">
+                            <canvas id="subscribersChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="likesChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="viewsChart" width="400" height="200"></canvas>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="commentsChart" width="400" height="200"></canvas>
+                        </div>
                     </div>
                 {% endif %}
             </div>
@@ -85,6 +101,7 @@
 
 {% block scripts %}
     <!-- Дополнительные скрипты для вашего сайта -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.getElementById('upload_image').addEventListener('click', function () {
             document.getElementById('image_input').click(); // При нажатии на кнопку "Загрузить", вызываем событие клика на input[type=file]
@@ -99,6 +116,16 @@
 
         // Обработчик события для input[type=file]
         document.getElementById('image_input').addEventListener('change', function () {
+            var file = this.files[0]; // Получаем выбранный файл
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                var imageElement = document.getElementById('uploaded_image');
+                imageElement.src = e.target.result; // Заменяем src изображения на загруженное изображение
+            };
+
+            reader.readAsDataURL(file); // Читаем выбранный файл как Data URL
+
             var form = document.getElementById('image_form'); // Получаем форму
             var formData = new FormData(form); // Создаем объект FormData для отправки формы
             var xhr = new XMLHttpRequest(); // Создаем новый объект XMLHttpRequest
@@ -107,8 +134,7 @@
                 if (xhr.readyState === XMLHttpRequest.DONE) { // Проверяем состояние запроса
                     if (xhr.status === 200) { // Проверяем статус ответа
                         // Действия при успешной загрузке изображения
-                        alert('Изображение успешно загружено!');
-                        window.location.reload(); // Перезагружаем страницу после загрузки изображения
+                        alert('Изображение успешно загружено и заменено!');
                     } else {
                         // Действия при ошибке загрузки изображения
                         alert('Ошибка загрузки изображения!');
@@ -120,5 +146,74 @@
             xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}'); // Устанавливаем CSRF-токен в заголовке запроса
             xhr.send(formData); // Отправляем форму на сервер
         });
+
+        // Функция для отрисовки графиков YouTube-канала
+        function drawYoutubeGraphs(subscribersData, likesData, viewsData, commentsData) {
+            var subscribersCtx = document.getElementById('subscribersChart').getContext('2d');
+            var likesCtx = document.getElementById('likesChart').getContext('2d');
+            var viewsCtx = document.getElementById('viewsChart').getContext('2d');
+            var commentsCtx = document.getElementById('commentsChart').getContext('2d');
+
+            var subscribersChart = new Chart(subscribersCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    datasets: [{
+                        label: 'Подписчики',
+                        data: subscribersData,
+                        borderColor: 'blue',
+                        fill: false
+                    }]
+                }
+            });
+
+            var likesChart = new Chart(likesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    datasets: [{
+                        label: 'Лайки',
+                        data: likesData,
+                        borderColor: 'green',
+                        fill: false
+                    }]
+                }
+            });
+
+            var viewsChart = new Chart(viewsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    datasets: [{
+                        label: 'Просмотры',
+                        data: viewsData,
+                        borderColor: 'orange',
+                        fill: false
+                    }]
+                }
+            });
+
+            var commentsChart = new Chart(commentsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+                    datasets: [{
+                        label: 'Комментарии',
+                        data: commentsData,
+                        borderColor: 'red',
+                        fill: false
+                    }]
+                }
+            });
+        }
+
+        // Предположим, у вас есть данные для графиков
+        var subscribersData = [200, 200, 100, 400, 600, 400, 800, 700, 100, 1000, 1100, 1200];
+        var likesData = [40, 40, 60, 50, 100, 120, 110, 100, 140, 140, 170, 200];
+        var viewsData = [1376, 2200, 2000, 2400, 2700, 2700, 3300, 3700, 4500, 4000, 4100, 4320];
+        var commentsData = [5, 12, 32, 43, 55, 23, 21, 33, 60, 65, 70, 90];
+
+        // Вызываем функцию для отрисовки графиков
+        drawYoutubeGraphs(subscribersData, likesData, viewsData, commentsData);
     </script>
 {% endblock %}

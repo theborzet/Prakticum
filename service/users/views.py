@@ -53,9 +53,9 @@ class UserProfileView(DetailView):
         context = super().get_context_data(**kwargs)
         user = self.object
         if user.youtube_channel:
-            print("Channel URL:", user.youtube_channel)  # Выводим URL канала для проверки
+            # print("Channel URL:", user.youtube_channel)  # Выводим URL канала для проверки
             youtube_info = get_user_info(user.youtube_channel)
-            print("YouTube Info:", youtube_info)
+            # print("YouTube Info:", youtube_info)
             context['youtube_info'] = youtube_info
         return context
     
@@ -68,6 +68,23 @@ class SaveYouTubeChannelView(LoginRequiredMixin, View):
 
         return HttpResponseRedirect(reverse_lazy('users:profile', kwargs={'pk': pk}))
 
+
+def extract_username(channel_url):
+    pattern = r'https://www\.youtube\.com/@(\w+)'
+    match = re.match(pattern, channel_url)
+    if match:
+        return match.group(1)
+    else:
+        return None
+
+def extract_channel_id(search_data):
+    for item in search_data.get('items', []):
+        if item.get('id', {}).get('kind') == 'youtube#channel':
+            return item['id'].get('channelId')
+        elif item.get('id', {}).get('kind') == 'youtube#user':
+            return item['id'].get('channelId')
+    return None
+
 def get_user_info(channel_url):
     username = extract_username(channel_url)
     api_key = 'AIzaSyBG-ts9VMkNhKuznu5ZQQ4HQ76DX_2ZWOk'
@@ -77,16 +94,15 @@ def get_user_info(channel_url):
     response = requests.get(search_url)
     data = response.json()
     
-    # Проверяем наличие элементов в списке и ответе
-    if 'items' in data and data['items']:
-        # Берем etag из первого ответа
-        etag = data['items'][1]['etag']
-        
-        # Прокидываем запрос через этот etag
-        channel_info_url = f'https://www.googleapis.com/youtube/v3/channels?part=snippet&id={etag}&key={api_key}'
+    # Извлекаем ID канала
+    channel_id = extract_channel_id(data)
+    
+    # Если канал найден, получаем информацию о нем
+    if channel_id:
+        channel_info_url = f'https://www.googleapis.com/youtube/v3/channels?part=snippet&id={channel_id}&key={api_key}'
         channel_response = requests.get(channel_info_url)
         channel_data = channel_response.json()
-        print(channel_data)
+        
         # Обработка ответа и извлечение информации о канале
         channel_info = {}
         if 'items' in channel_data and channel_data['items']:
@@ -97,11 +113,3 @@ def get_user_info(channel_url):
         return channel_info
     
     return {}
-
-def extract_username(channel_url):
-    pattern = r'https://www\.youtube\.com/@(\w+)'
-    match = re.match(pattern, channel_url)
-    if match:
-        return match.group(1)
-    else:
-        return None

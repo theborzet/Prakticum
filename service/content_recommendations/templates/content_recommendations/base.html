@@ -49,7 +49,7 @@
                             <li><a class="dropdown-item" href="{% url 'index' %}">Заказы</a></li>
                             {% if user.is_superuser or user.is_staff %}
                                 <li>
-                                    <a class="dropdown-item" href="{% url 'admin_panel' %}">
+                                    <a class="dropdown-item" href="{% url 'index' %}">
                                         Админ-панель
                                     </a>
                                 </li>
