@@ -20,7 +20,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 from content_recommendations.views import IndexView
-# from orders.views import stripe_webhook_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),

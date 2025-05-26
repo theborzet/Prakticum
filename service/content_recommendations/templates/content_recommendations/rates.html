@@ -1,48 +1,296 @@
 {% extends 'content_recommendations/base.html' %}
+{% load static %}
+{% block css %}
+    <link href="{% static 'vendor/css/pricing.css' %}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins :wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Убираем отступ сверху у секции */
+        .pricing-section {
+            background: #78a6ed;
+            padding-top: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            margin-top: -70px; /* Смещаем вверх под фиксированный навбар */
+        }
+
+        /* Заголовок */
+        .pricing-section h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Белые карточки */
+        .pricing-card {
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            color: #333;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+
+        /* Анимация появления */
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .pricing-card:nth-child(1) { animation-delay: 0.1s; }
+        .pricing-card:nth-child(2) { animation-delay: 0.2s; }
+        .pricing-card:nth-child(3) { animation-delay: 0.3s; }
+
+        /* Эффект при ховере */
+        .pricing-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Простая обводка вместо градиентной */
+        .pricing-card.free {
+            border: 2px solid #28a745;
+        }
+
+        .pricing-card.standard {
+            border: 2px solid #007bff;
+        }
+
+        .pricing-card.premium {
+            border: 2px solid #ff6b6b;
+        }
+
+        /* Лента "Популярно" */
+        .pricing-card.premium::before {
+            content: 'Популярно';
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 35px;
+            transform: rotate(45deg);
+            font-size: 0.7rem;
+            z-index: 1;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        /* Стили внутри карточки */
+        .pricing-card .card-body {
+            padding: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 450px;
+        }
+
+        .pricing-card .card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .pricing-card h5 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .pricing-card.free h5 {
+            color: #28a745;
+        }
+
+        .pricing-card.standard h5 {
+            color: #007bff;
+        }
+
+        .pricing-card.premium h5 {
+            color: #ff6b6b;
+        }
+
+        .pricing-card p {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .pricing-card ul {
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+            color: #777;
+            margin-bottom: 20px;
+            flex-grow: 0;
+        }
+
+        .pricing-card ul li {
+            border: none;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pricing-card ul li img {
+            width: 20px;
+            margin-right: 10px;
+        }
+
+        /* Кнопки */
+        .pricing-card .btn {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            padding: 10px 25px;
+            border-radius: 50px;
+            transition: background 0.3s, transform 0.3s;
+            margin-top: auto;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            color: white;
+            border: none;
+        }
+
+        .pricing-card.free .btn {
+            background: #28a745;
+        }
+
+        .pricing-card.free .btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.standard .btn {
+            background: #007bff;
+        }
+
+        .pricing-card.standard .btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.premium .btn {
+            background: #ff6b6b;
+        }
+
+        .pricing-card.premium .btn:hover {
+            background: #e64c4c;
+            transform: scale(1.05);
+        }
+
+        /* Текст цены */
+        .price-tag {
+            font-size: 0.9rem;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .price-tag.free {
+            background: #28a745;
+        }
+
+        .price-tag.standard {
+            background: #007bff;
+        }
+
+        .price-tag.premium {
+            background: #ff6b6b;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .pricing-section h1 {
+                font-size: 2rem;
+            }
+
+            .pricing-card h5 {
+                font-size: 1.5rem;
+            }
+
+            .pricing-card p {
+                font-size: 0.9rem;
+            }
+
+            .pricing-card .card-body {
+                min-height: 400px;
+            }
+
+            .pricing-card.premium::before {
+                padding: 5px 30px;
+                right: -30px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="text-center mb-4">Тарифы нашего сервиса</h1>
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Бесплатный тариф</h5>
-                    <p class="card-text">Пробная версия на 30 дней. Получите ограниченный доступ к контенту и базовый анализ предпочтений.</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Ограниченный доступ к контенту</li>
-                        <li class="list-group-item">Базовый анализ предпочтений</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary mt-3">Попробовать бесплатно</a>
+    <main class="pt-5">
+        <section class="pricing-section">
+            <div class="container-fluid px-4">
+                <h1 class="text-center">Выберите ваш тариф TrendPulse</h1>
+                <div class="row">
+                    <div class="col-md-4 mb-4 px-2">
+                        <div class="pricing-card free h-100">
+                            <div class="card-body">
+                                <div class="card-content">
+                                    <h5 class="card-title">Free <span class="price-tag free">0 ₽/мес</span></h5>
+                                    <p>Попробуйте TrendPulse бесплатно в течение 30 дней с базовыми функциями.</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Ограниченный доступ к контенту</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Базовый анализ YouTube-канала</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">1 отчет в месяц</li>
+                                    </ul>
+                                </div>
+                                <a href="{% url 'users:registration' %}" class="btn mt-3">Выбрать</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4 px-2">
+                        <div class="pricing-card standard h-100">
+                            <div class="card-body">
+                                <div class="card-content">
+                                    <h5 class="card-title">Standard <span class="price-tag standard">990 ₽/мес</span></h5>
+                                    <p>Полный доступ к аналитике и рекомендациям для роста вашего контента.</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Полный доступ к контенту</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Расширенный анализ YouTube и TikTok</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Еженедельные отчеты</li>
+                                    </ul>
+                                </div>
+                                <a href="#" class="btn mt-3">Выбрать</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4 px-2">
+                        <div class="pricing-card premium h-100">
+                            <div class="card-body">
+                                <div class="card-content">
+                                    <h5 class="card-title">Premium <span class="price-tag premium">1990 ₽/мес</span></h5>
+                                    <p>Максимальные возможности с персональными рекомендациями и приоритетной поддержкой.</p>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Привилегированный доступ к трендам</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Персональный анализ и стратегии</li>
+                                        <li class="list-group-item"><img src="{% static 'vendor/img/check.png' %}" alt="Check">Ежедневные отчеты и поддержка</li>
+                                    </ul>
+                                </div>
+                                <a href="#" class="btn mt-3">Выбрать</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Стандартный тариф</h5>
-                    <p class="card-text">Доступ ко всем функциям. Получите полный доступ к контенту и расширенный анализ предпочтений.</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Полный доступ к контенту</li>
-                        <li class="list-group-item">Расширенный анализ предпочтений</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary mt-3">Подписаться</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                <div class="card-body"> 
-                    <h5 class="card-title">Премиум тариф</h5>
-                    <p class="card-text">Максимальные возможности. Получите привилегированный доступ к контенту, персональный анализ и рекомендации.</p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Привилегированный доступ к контенту</li>
-                        <li class="list-group-item">Персональный анализ и рекомендации</li>
-                    </ul>
-                    <a href="#" class="btn btn-primary mt-3">Выбрать премиум</a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        </section>
+    </main>
 {% endblock %}

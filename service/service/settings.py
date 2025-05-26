@@ -41,11 +41,12 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
+    'django.contrib.humanize',
 
     'users',
     'content_recommendations',
-    'content_management',
-    'content_analysis',
+    # 'content_management',
+    # 'content_analysis',
     'admin_panel',
 ]
 

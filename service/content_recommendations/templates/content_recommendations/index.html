@@ -3,27 +3,127 @@
 
 {% block css %}
     <link href="{% static 'vendor/css/index.css' %}" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-custom {
+            background-color: #ffffff;
+            color: #6e8efb;
+            font-weight: bold;
+            padding: 12px 30px;
+            border-radius: 50px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .features-section {
+            padding: 60px 0;
+        }
+
+        /* Белый фон, закругления и чёрный текст */
+        .feature-card {
+            background: #ffffff;          /* белый фон */
+            color: #000000;               /* чёрный цвет текста */
+            padding: 20px;
+            border-radius: 15px;          /* закруглённые углы */
+            text-align: center;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* лёгкая тень для глубины */
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card img {
+            width: 60px;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3,
+        .feature-card p {
+            color: #000000; /* гарантируем чёрный текст внутри карточки */
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            .hero-section p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
-    <section>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <h1 class="mt-5">ContentRecSys</h1>
-                    <p>
-                        Добро пожаловать в наш сервис анализа контента. Мы предоставляем возможность анализировать текстовые, видео- и аудиофайлы для извлечения полезной информации и вывода рекомендаций.
-                    </p>
-                    <p>
-                        Начните использовать возможности нашей системы прямо сейчас!
-                    </p>
-                    <button id="start-analysis-btn" type="button" class="btn btn-lg">
-                        <a id="start-analysis-link" href="{% url 'content_recommendations:trend' %}">
-                            Перейти к трендам
-                        </a>
-                    </button>
+    <main>
+        <!-- Hero Section -->
+        <section class="col-md-4 mb-4 mx-auto">
+            <div class="feature-card">
+                <h1>TrendPulse</h1>
+                <p>
+                    Анализируйте видео, тексты и аудио с помощью передовых алгоритмов. Получайте рекомендации для роста вашего YouTube-канала и отслеживайте тренды в реальном времени.
+                </p>
+                <a href="{% url 'content_recommendations:trend' %}" class="btn btn-custom">
+                    Открыть тренды
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features-section">
+            <div class="container">
+                <h2 class="feature-card">Почему выбирают нас?</h2>
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="feature-card">
+                            <img src="{% static 'vendor/img/analytics.png' %}" alt="Аналитика">
+                            <h3>Глубокая аналитика</h3>
+                            <p>Извлекайте ценные инсайты из ваших видео и текстов для повышения вовлеченности.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="feature-card">
+                            <img src="{% static 'vendor/img/trends.png' %}" alt="Тренды">
+                            <h3>Актуальные тренды</h3>
+                            <p>Будьте в курсе популярных тем и форматов для создания вирусного контента.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-4">
+                        <div class="feature-card">
+                            <img src="{% static 'vendor/img/recommendations.png' %}" alt="Рекомендации">
+                            <h3>Персональные рекомендации</h3>
+                            <p>Получайте советы по улучшению контента на основе данных.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 {% endblock %}
