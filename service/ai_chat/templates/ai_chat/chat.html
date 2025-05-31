@@ -1,0 +1,134 @@
+{% extends 'content_recommendations/base.html' %}
+{% block title %}Чат с ИИ - TrendPulse{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Личный AI Ассистент</h2>
+    <div id="chat-box" style="height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 15px; background: #f9f9f9; margin-bottom: 20px;"></div>
+
+    <form id="chat-form" class="input-group mb-3">
+        <input type="text" id="user-input" class="form-control" placeholder="Задайте вопрос по улучшению канала..." />
+        <button class="btn btn-primary" type="submit">Отправить</button>
+    </form>
+
+    <h4>Популярные вопросы:</h4>
+    <div class="preset-buttons mb-4">
+        <button class="btn btn-outline-secondary m-1 preset-btn" onclick="sendPreset(this.innerText)">Как увеличить охват?</button>
+        <button class="btn btn-outline-secondary m-1 preset-btn" onclick="sendPreset(this.innerText)">Как улучшить миниатюры?</button>
+        <button class="btn btn-outline-secondary m-1 preset-btn" onclick="sendPreset(this.innerText)">Какие сейчас тренды?</button>
+        <button class="btn btn-outline-secondary m-1 preset-btn" onclick="sendPreset(this.innerText)">Как повысить вовлечённость?</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const chatBox = document.getElementById('chat-box');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('user-input');
+    const buttons = document.querySelectorAll('.preset-btn');
+
+    function addMessage(role, text) {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.margin = '10px 0';
+        msgDiv.style.padding = '10px 15px';
+        msgDiv.style.borderRadius = '8px';
+        msgDiv.style.maxWidth = '80%';
+        msgDiv.style.wordWrap = 'break-word';
+
+        if (role === 'user') {
+            msgDiv.style.backgroundColor = '#d1e7dd';
+            msgDiv.style.textAlign = 'right';
+            msgDiv.style.marginLeft = 'auto';
+        } else {
+            msgDiv.style.backgroundColor = '#f1f1f1';
+            msgDiv.style.textAlign = 'left';
+            msgDiv.style.marginRight = 'auto';
+        }
+
+        msgDiv.innerHTML = `<strong>${role === 'bot' ? 'TrendPulse AI' : 'Вы'}:</strong><br>${text}`;
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Элемент с анимацией загрузки
+    function showThinking() {
+        const thinkingDiv = document.createElement('div');
+        thinkingDiv.id = 'thinking';
+        thinkingDiv.style.margin = '10px 0';
+        thinkingDiv.style.padding = '10px 15px';
+        thinkingDiv.style.borderRadius = '8px';
+        thinkingDiv.style.backgroundColor = '#f1f1f1';
+        thinkingDiv.style.textAlign = 'left';
+        thinkingDiv.style.marginRight = 'auto';
+        thinkingDiv.innerHTML = '<strong>TrendPulse AI:</strong><br>Думаю<span class="loading-dots">...</span>';
+        chatBox.appendChild(thinkingDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        return thinkingDiv;
+    }
+
+    // Блокировка формы
+    function toggleInput(locked) {
+        input.disabled = locked;
+        form.querySelector('button[type=submit]').disabled = locked;
+        buttons.forEach(btn => btn.disabled = locked);
+    }
+
+    async function sendPreset(question) {
+        addMessage('user', question);
+
+        const thinkingDiv = showThinking();
+        toggleInput(true);
+
+        const url = "{% url 'ai_chat:chat_api' %}?message=" + encodeURIComponent(question) + "&user_id={{ request.user.id }}";
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            thinkingDiv.innerHTML = `<strong>TrendPulse AI:</strong><br>${data.reply}`;
+        } catch (error) {
+            thinkingDiv.innerHTML = `<strong>TrendPulse AI:</strong><br>Ошибка связи с сервером.`;
+        } finally {
+            toggleInput(false);
+        }
+    }
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const message = input.value.trim();
+        if (!message) return;
+
+        addMessage('user', message);
+        input.value = '';
+        const thinkingDiv = showThinking();
+        toggleInput(true);
+
+        const url = "{% url 'ai_chat:chat_api' %}?message=" + encodeURIComponent(message) + "&user_id={{ request.user.id }}";
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            thinkingDiv.innerHTML = `<strong>TrendPulse AI:</strong><br>${data.reply}`;
+        } catch (error) {
+            thinkingDiv.innerHTML = `<strong>TrendPulse AI:</strong><br>Ошибка связи с сервером.`;
+        } finally {
+            toggleInput(false);
+        }
+    });
+</script>
+<style>
+    .loading-dots {
+        display: inline-block;
+        animation: blink 1s steps(1, end) infinite;
+    }
+
+    .loading-dots:after {
+        content: '...';
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.2; }
+    }
+</style>
+{% endblock %}

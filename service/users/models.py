@@ -14,6 +14,22 @@ class CustomUser(AbstractUser):
     def get_absolute_url(self):
         return reverse('users:profile', kwargs={'pk': self.pk})
 
+class UserActivity(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='activities')
+    action = models.CharField(max_length=100)  # Например, "upload_video", "update_profile"
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        
+class YouTubeChannelStats(models.Model):
+    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    channel_id = models.CharField(max_length=100)
+    data = models.JSONField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'channel_id']
 # class EmailVerification(models.Model):
 #     code = models.UUIDField(unique=True)
 #     user = models.ForeignKey(to=User, on_delete=models.CASCADE)

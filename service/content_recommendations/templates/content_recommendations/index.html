@@ -60,9 +60,15 @@
             transform: translateY(-5px);
         }
 
-        .feature-card img {
-            width: 60px;
-            margin-bottom: 15px;
+       .feature-card img {
+            width: 100px;               /* было 60px → стало 80px */
+            height: auto;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover img {
+            transform: scale(1.1);      /* лёгкая анимация при наведении */
         }
 
         .feature-card h3,

@@ -1,8 +1,9 @@
 {% extends 'content_recommendations/base.html' %}
 {% load static %}
+
 {% block meta %}
-<meta name="description" content="Профиль пользователя {{ user.first_name }} {{ user.last_name }} на TrendPulse">
-<meta name="keywords" content="YouTube аналитика, профиль пользователя, {{ user.first_name }}">
+    <meta name="description" content="Профиль пользователя {{ user.first_name }} {{ user.last_name }} на TrendPulse">
+    <meta name="keywords" content="YouTube аналитика, профиль пользователя, {{ user.first_name }}">
 {% endblock %}
 
 {% block css %}
@@ -75,88 +76,38 @@
         transform: translateY(-2px);
     }
 
-    .youtube-graph canvas {
-        animation: fadeIn 1s ease-in;
+    /* Блок с подписчиками */
+    .subscriber-box {
+        text-align: center;
+        background: #f3f4f6;
+        border-radius: 12px;
+        padding: 20px;
         margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    .subscriber-count {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #3b82f6;
+        margin: 0;
     }
 
-    .alert-success,
-    .alert-error {
-        padding: 12px;
-        border-radius: 8px;
-        margin: 15px 0;
-        transition: opacity 0.3s ease;
+    .subscriber-label {
+        font-size: 1rem;
+        color: #4b5563;
+        margin-top: 5px;
     }
 
-    .alert-success {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .alert-error {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    .edit-section {
-        margin-top: 15px;
-    }
-
-    .edit-section input {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    .loading-spinner {
-        display: none;
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #6200ea;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        animation: spin 1s linear infinite;
-        margin-left: 10px;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    /* Поддержка тёмной темы */
     @media (prefers-color-scheme: dark) {
-        .profile-card {
-            background: #1e1e1e;
-            color: #ffffff;
+        .subscriber-box {
+            background: #2d2d2d;
         }
-
-        .form-control {
-            background: #2c2c2c;
-            color: #ffffff;
-            border-color: #444;
+        .subscriber-count {
+            color: #60a5fa;
         }
-
-        .profile-image {
-            border-color: #444;
-        }
-
-        .alert-success {
-            background: #2f855a;
-            color: #c6f6d5;
-        }
-
-        .alert-error {
-            background: #9b2c2c;
-            color: #fed7d7;
+        .subscriber-label {
+            color: #d1d5db;
         }
     }
 
@@ -164,11 +115,6 @@
         .profile-image {
             width: 100px;
             height: 100px;
-        }
-
-        .profile-info {
-            flex-direction: column;
-            align-items: flex-start;
         }
 
         .profile-card h2 {
@@ -229,8 +175,8 @@
                 {% else %}
                     <form id="youtube_form" action="{% url 'users:save_youtube_channel' user.pk %}" method="post">
                         {% csrf_token %}
-                        <p class="mt-3"><strong>Ссылка на YouTube:</strong> <small class="text-muted">Введите ссылку (например, https://www.youtube.com/@username)</small></p>
-                        <input type="text" id="youtube_channel" name="youtube_channel" class="form-control mb-2" placeholder="https://www.youtube.com/@username">
+                        <p class="mt-3"><strong>Ссылка на YouTube:</strong> <small class="text-muted">Введите ссылку (например, https://www.youtube.com/ @username)</small></p>
+                        <input type="text" id="youtube_channel" name="youtube_channel" class="form-control mb-2" placeholder="https://www.youtube.com/ @username">
                         <button type="submit" class="btn btn-primary mt-2">Сохранить</button>
                     </form>
                 {% endif %}
@@ -248,159 +194,68 @@
                 <div class="profile-card youtube-graph">
                     <h2>Статистика YouTube-канала</h2>
                     <div class="row">
+                        <!-- Блок с подписчиками вместо графика -->
                         <div class="col-md-6">
-                            <canvas id="subscribersChart" width="400" height="200"></canvas>
+                            <div class="subscriber-box">
+                                <p class="subscriber-label">Подписчики</p>
+                                <p class="subscriber-count" id="subscriber-count">—</p>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <canvas id="likesChart" width="400" height="200"></canvas>
-                        </div>
-                        <div class="col-md-6">
-                            <canvas id="viewsChart" width="400" height="200"></canvas>
-                        </div>
-                        <div class="col-md-6">
-                            <canvas id="commentsChart" width="400" height="200"></canvas>
-                        </div>
+
+                        <!-- Остальные графики -->
+                        <div class="col-md-6"><canvas id="likesChart" width="400" height="200"></canvas></div>
+                        <div class="col-md-6"><canvas id="viewsChart" width="400" height="200"></canvas></div>
+                        <div class="col-md-6"><canvas id="commentsChart" width="400" height="200"></canvas></div>
                     </div>
                 </div>
             {% endif %}
         </div>
     </div>
 </div>
+
+<!-- Скрытые данные для JS -->
+<div id="youtube-data" data-youtube-info="{{ youtube_info }}"></div>
+<div id="activity-data" data-activity-info="{{ activity_info }}"></div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js "></script>
 <script>
-    // Инициализация Bootstrap tooltips
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
-
-    // Кэширование изображения в localStorage
-    const profileImage = document.getElementById('profile_image');
-    const defaultImage = "{% static 'vendor/img/default.jpg' %}";
-    const cachedImage = localStorage.getItem('profileImage');
-
-    // Функция проверки изображения
-    function checkImage(src, callback) {
-        const img = new Image();
-        img.onload = () => callback(true);
-        img.onerror = () => callback(false);
-        img.src = src;
+    // --- Получаем данные из DOM ---
+    const youtubeDataElement = document.getElementById('youtube-data');
+    const youtubeInfoRaw = youtubeDataElement ? youtubeDataElement.dataset.youtubeInfo : '{}';
+    let youtubeInfo = {};
+    try {
+        youtubeInfo = JSON.parse(youtubeInfoRaw);
+    } catch (e) {
+        console.error('Ошибка парсинга данных YouTube:', e);
+        showAlert('Ошибка загрузки данных YouTube', 'error');
     }
 
-    // Установка изображения из кэша или дефолтного
-    if (cachedImage) {
-        checkImage(cachedImage, (valid) => {
-            profileImage.src = valid ? cachedImage : defaultImage;
-        });
-    } else {
-        profileImage.src = defaultImage;
+    // --- Выводим количество подписчиков как число ---
+    const subscriberCountEl = document.getElementById('subscriber-count');
+    if (subscriberCountEl && youtubeInfo.subscribers && youtubeInfo.subscribers.length > 0) {
+        const subscribers = youtubeInfo.subscribers[0];
+        subscriberCountEl.textContent = formatNumber(subscribers);
     }
 
-    // Загрузка аватара
-    const uploadButton = document.getElementById('upload_image');
-    const imageInput = document.getElementById('image_input');
-    const imageForm = document.getElementById('image_form');
-    const loadingSpinner = document.getElementById('image_loading');
-
-    uploadButton.addEventListener('click', () => {
-        imageInput.click();
-    });
-
-    imageInput.addEventListener('change', () => {
-        const file = imageInput.files[0];
-        if (!file || !file.type.match('image.*')) {
-            showAlert('Пожалуйста, выберите изображение', 'error');
-            return;
-        }
-
-        if (file.size > 5 * 1024 * 1024) {
-            showAlert('Файл слишком большой! Максимум 5MB.', 'error');
-            return;
-        }
-
-        profileImage.classList.add('loading');
-        loadingSpinner.style.display = 'inline-block';
-        uploadButton.disabled = true;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imageData = e.target.result;
-            checkImage(imageData, (valid) => {
-                if (valid) {
-                    profileImage.src = imageData;
-                    localStorage.setItem('profileImage', imageData);
-                } else {
-                    showAlert('Некорректное изображение', 'error');
-                    profileImage.src = defaultImage;
-                }
-            });
-        };
-        reader.readAsDataURL(file);
-
-        const formData = new FormData(imageForm);
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', imageForm.action);
-        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-        xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-                profileImage.classList.remove('loading');
-                loadingSpinner.style.display = 'none';
-                uploadButton.disabled = false;
-                if (xhr.status === 200) {
-                    showAlert('Изображение успешно загружено!', 'success');
-                } else {
-                    showAlert('Ошибка загрузки: ' + xhr.statusText, 'error');
-                    profileImage.src = defaultImage;
-                    localStorage.setItem('profileImage', defaultImage);
-                }
-            }
-        };
-        xhr.send(formData);
-    });
-
-    // Валидация ссылки на YouTube
-    const youtubeForm = document.getElementById('youtube_form');
-    if (youtubeForm) {
-        youtubeForm.addEventListener('submit', (e) => {
-            const link = document.getElementById('youtube_channel').value.trim();
-            const pattern = /^https:\/\/(www\.)?youtube\.com\/@[\w-]+$/;
-            if (!pattern.test(link)) {
-                e.preventDefault();
-                showAlert('Введите корректную ссылку на YouTube (например, https://www.youtube.com/@username)', 'error');
-            }
-        });
+    function formatNumber(num) {
+        num = parseInt(num);
+        if (num >= 1_000_000) return Math.round(num / 1_000_000) + 'M';
+        if (num >= 1_000) return Math.round(num / 1_000) + 'K';
+        return num.toString();
     }
 
-    // Функция отображения уведомлений
-    function showAlert(message, type) {
-        const alertContainer = document.querySelector('.alert-container') || document.createElement('div');
-        alertContainer.className = 'alert-container';
-        const alert = document.createElement('div');
-        alert.className = `alert alert-${type}`;
-        alert.role = 'alert';
-        alert.textContent = message;
-        alertContainer.appendChild(alert);
-        document.querySelector('.profile-container').prepend(alertContainer);
-        setTimeout(() => alert.remove(), 3000);
-    }
-
-    // Отрисовка графиков YouTube
+    // --- Графики YouTube ---
     function drawYoutubeGraphs(data) {
-        const labels = data.labels || ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'];
+        const labels = data.labels || ['День 1', 'День 2', 'День 3', 'День 4', 'День 5', 'День 6'];
 
         const charts = [
-            {
-                ctx: document.getElementById('subscribersChart')?.getContext('2d'),
-                label: 'Подписчики',
-                data: data.subscribers || [],
-                color: '#3b82f6'
-            },
             {
                 ctx: document.getElementById('likesChart')?.getContext('2d'),
                 label: 'Лайки',
                 data: data.likes || [],
-                color: '#22c55e'
+                color: '#10b981'
             },
             {
                 ctx: document.getElementById('viewsChart')?.getContext('2d'),
@@ -426,7 +281,8 @@
                             label: chart.label,
                             data: chart.data,
                             borderColor: chart.color,
-                            fill: false,
+                            backgroundColor: `${chart.color}55`,
+                            fill: true,
                             tension: 0.3
                         }]
                     },
@@ -443,30 +299,137 @@
         });
     }
 
-    // Получение данных YouTube
-    const youtubeDataElement = document.getElementById('youtube-data');
-    const youtubeInfoRaw = youtubeDataElement ? youtubeDataElement.dataset.youtubeInfo : '{}';
-    let youtubeInfo = {};
-    try {
-        youtubeInfo = JSON.parse(youtubeInfoRaw);
-        if (Object.keys(youtubeInfo).length > 0) {
-            drawYoutubeGraphs(youtubeInfo);
-        }
-    } catch (e) {
-        console.error('Ошибка парсинга данных YouTube:', e);
-        showAlert('Ошибка загрузки данных YouTube', 'error');
+    if (youtubeInfo.labels && youtubeInfo.labels.length > 0) {
+        drawYoutubeGraphs(youtubeInfo);
     }
 
-    // График активности пользователя
+    // --- Уведомления ---
+    function showAlert(message, type) {
+        const alertContainer = document.querySelector('.alert-container') || document.createElement('div');
+        alertContainer.className = 'alert-container';
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alertContainer.appendChild(alert);
+        document.querySelector('.profile-container').prepend(alertContainer);
+        setTimeout(() => alert.remove(), 3000);
+    }
+
+    // --- Подключение Bootstrap tooltips ---
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
+    // --- Кэширование аватара ---
+    const profileImage = document.getElementById('profile_image');
+    const defaultImage = "{% static 'vendor/img/default.jpg' %}";
+    const cachedImage = localStorage.getItem('profileImage');
+
+    function checkImage(src, callback) {
+        const img = new Image();
+        img.onload = () => callback(true);
+        img.onerror = () => callback(false);
+        img.src = src;
+    }
+
+    if (cachedImage) {
+        checkImage(cachedImage, valid => {
+            profileImage.src = valid ? cachedImage : defaultImage;
+        });
+    } else {
+        profileImage.src = defaultImage;
+    }
+
+    // --- Загрузка нового изображения ---
+    const uploadButton = document.getElementById('upload_image');
+    const imageInput = document.getElementById('image_input');
+    const imageForm = document.getElementById('image_form');
+    const loadingSpinner = document.getElementById('image_loading');
+
+    uploadButton.addEventListener('click', () => imageInput.click());
+
+    imageInput.addEventListener('change', () => {
+        const file = imageInput.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+            showAlert('Пожалуйста, выберите изображение', 'error');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            showAlert('Файл слишком большой! Максимум 5MB.', 'error');
+            return;
+        }
+
+        profileImage.classList.add('loading');
+        loadingSpinner.style.display = 'inline-block';
+        uploadButton.disabled = true;
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            const imageData = e.target.result;
+            checkImage(imageData, valid => {
+                if (valid) {
+                    profileImage.src = imageData;
+                    localStorage.setItem('profileImage', imageData);
+                } else {
+                    showAlert('Некорректное изображение', 'error');
+                    profileImage.src = defaultImage;
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData(imageForm);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', imageForm.action);
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+                profileImage.classList.remove('loading');
+                loadingSpinner.style.display = 'none';
+                uploadButton.disabled = false;
+                if (xhr.status === 200) {
+                    showAlert('Изображение успешно загружено!', 'success');
+                } else {
+                    showAlert('Ошибка загрузки: ' + xhr.statusText, 'error');
+                }
+            }
+        };
+
+        xhr.send(formData);
+    });
+
+    // --- Валидация формы YouTube ---
+    const youtubeForm = document.getElementById('youtube_form');
+    if (youtubeForm) {
+        youtubeForm.addEventListener('submit', e => {
+            const link = document.getElementById('youtube_channel').value.trim();
+            const pattern = /^https:\/\/(www\.)?youtube\.com\/@[\w-]+$/;
+            if (!pattern.test(link)) {
+                e.preventDefault();
+                showAlert('Введите корректную ссылку на YouTube (например, https://www.youtube.com/ @username)', 'error');
+            }
+        });
+    }
+
+    // Графики активности
+    const activityDataElement = document.getElementById('youtube-data');
+    const activityInfoRaw = activityDataElement ? activityDataElement.dataset.youtubeInfo : '{}';
+    let activityInfo = {};
+    try {
+        activityInfo = JSON.parse(activityInfoRaw);
+    } catch (e) {
+        console.error('Ошибка парсинга данных активности:', e);
+        showAlert('Ошибка загрузки данных активности', 'error');
+    }
+
     const myChart = document.getElementById('myChart');
-    if (myChart) {
+    if (myChart && activityInfo.labels && activityInfo.labels.length > 0) {
         new Chart(myChart.getContext('2d'), {
             type: 'line',
             data: {
-                labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
+                labels: activityInfo.labels,
                 datasets: [{
-                    label: 'Активность',
-                    data: [0, 10, 5, 2, 20, 30],
+                    label: 'Активность — это число ваших действий: загрузок видео, публикаций или анализов, которые вы запускали.',
+                    data: activityInfo.views || [],
                     borderColor: '#6200ea',
                     fill: false,
                     tension: 0.3
@@ -482,5 +445,7 @@
             }
         });
     }
+
+
 </script>
 {% endblock %}

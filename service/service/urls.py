@@ -26,12 +26,7 @@ urlpatterns = [
     path('', IndexView.as_view(), name='index'),
     path('content_recommendations/', include('content_recommendations.urls', namespace='content_recommendations')),
     path('users/', include('users.urls', namespace='users')),
-    # path('accounts/', include('allauth.urls')),
-    # path('content_management/', include('content_management.urls', namespace='content_management')),
-    # path('admin_panel/', include('admin_panel.urls', namespace='admin_panel')),
-
-    # path('webhook/stripe/', stripe_webhook_view, name='stripe_webhook'),
-
+    path('chat/',  include('ai_chat.urls', namespace='ai_chat'))
 ]
 # if settings.DEBUG:
 #     urlpatterns.append(path("__debug__/", include("debug_toolbar.urls")))

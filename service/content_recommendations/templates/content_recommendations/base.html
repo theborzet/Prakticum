@@ -44,7 +44,7 @@
                             <li>
                                 <a class="dropdown-item" href="{% url 'users:profile' user.id %}">Профиль</a>
                             </li>
-                            <li><a class="dropdown-item" href="{% url 'index' %}">Глубокая аналитика</a></li>
+                            <li><a class="dropdown-item" href="{% url 'ai_chat:chat' %}">Глубокая аналитика</a></li>
                             {% if user.is_superuser or user.is_staff %}
                                 <li>
                                     <a class="dropdown-item" href="{% url 'index' %}">Админ-панель</a>
